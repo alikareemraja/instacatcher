@@ -105,23 +105,25 @@ class Application(wx.Frame):
         self.Show()
 
         # And indicate we don't have a worker thread yet
-        self.worker = None
+        self.worker = []
 
     def action(self,event):
         """Start Computation."""
         # Trigger the worker thread unless it's already busy
-        if not self.worker:
-            State.Save(self.state);
-            self.SetStatusText('Downloading Data')
-            self.worker = Thread.InstaLoaderThread(self,self.state, self.state.influencer_list)
+        State.Save(self.state);
+        self.SetStatusText('Downloading Data')
+        for influencer in self.state.influencer_list:
+            self.worker.append(Thread.InstaLoaderThread(self,self.state, influencer))
             btn = event.GetEventObject()
             btn.Disable()
+            
 
     def cancel(self, event):
         """Stop Computation."""
         # Flag the worker thread to stop if running
-        if self.worker:
-            self.worker.abort()
+        if self.worker.count > 0:
+            for worker in self.worker:
+                worker.abort()
 
 
     def OnKeyTypedNbr(self, event):
@@ -171,47 +173,6 @@ class Application(wx.Frame):
         except ValueError as ve:
             print('ValueError Raised:', ve)
             self.state.isDate = False
-
-
-    def getDate (self, date: datetime):
-
-        Y=""
-        if date.year < 10:
-           Y="0%s" % str(date.year)
-        else:
-            Y=str(date.year)
-
-        M = ""
-        if date.month < 10:
-            M = "0%s" % str(date.month)
-        else:
-            M = str(date.month)
-
-        D = ""
-        if date.day < 10:
-            D = "0%s" % str(date.day)
-        else:
-            D = str(date.day)
-
-        h = ""
-        if date.hour < 10:
-            h = "0%s" % str(date.hour)
-        else:
-            h = str(date.hour)
-
-        m = ""
-        if date.minute < 10:
-            m = "0%s" % str(date.minute)
-        else:
-            m = str(date.minute)
-
-        s = ""
-        if date.second < 10:
-            s = "0%s" % str(date.second)
-        else:
-            s = str(date.second)
-
-        return "%(Y)s-%(M)s-%(D)s_%(h)s-%(m)s-%(s)s_UTC" % {'Y': Y, 'M': M, 'D': D, 'h': h, 'm': m, 's': s}
 
     def makeMenuBar(self):
         
