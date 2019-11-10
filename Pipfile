@@ -6,7 +6,6 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-instaloader = "*"
 python-docx = "*"
 xlsxwriter = "*"
 regex = "*"
@@ -14,6 +13,10 @@ emoji = "*"
 pyinstaller = "*"
 pickle-mixin = "*"
 xlrd = "*"
+libsdl-ttf2-0-0 = "*"
+pandas = "*"
+matplotlib = "*"
+instaloader = "~=4.2.10"
 
 [requires]
 python_version = "3.6"
