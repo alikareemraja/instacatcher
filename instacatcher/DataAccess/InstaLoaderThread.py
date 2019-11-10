@@ -311,6 +311,7 @@ class InstaLoaderThread(Thread):
         worksheets = [];
         rows = [2, 2]
         worksheet = None;
+        sheets = []
 
         if os.path.exists(os.path.join("data_{0}".format(username) , "{0}.xlsx".format(username))):
             wbRD = xlrd.open_workbook(os.path.join("data_{0}".format(username) , "{0}.xlsx".format(username)))
