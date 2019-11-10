@@ -16,6 +16,7 @@ import xlrd
 import calendar
 import regex
 import emoji
+from pathlib import Path
 from threading import *
 
 class InstaLoaderThread(Thread):
@@ -129,7 +130,7 @@ class InstaLoaderThread(Thread):
 
             project_path = os.path.dirname(sys.modules['__main__'].__file__)
             #script_dir = os.path.dirname(__file__)  # <-- absolute dir the script is in
-            rel_path = "{0}/{1}.txt".format(self.post_folder,fileName)
+            rel_path = os.path.join(self.post_folder , "{0}.txt".format(fileName))
             abs_file_path = os.path.join(project_path, rel_path)
 
             try:
@@ -194,12 +195,13 @@ class InstaLoaderThread(Thread):
 
             document.add_heading('{0} von {1} am {2}:'.format(mediaType,self.post_folder,fileName), level=1)
             document.add_paragraph('Information caught at %s' % datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-            if os.path.exists('{0}/{1}.jpg'.format(self.post_folder,fileName)):
+            
+            if os.path.exists(os.path.join(self.post_folder , "{0}.jpg".format(fileName))):
                 document.add_picture('{0}/{1}.jpg'.format(self.post_folder,fileName), width=Inches(2.5))
             else:
                 counter = 1
-                while os.path.exists('{0}/{1}_{2}.jpg'.format(self.post_folder,fileName,counter)):
-                    document.add_picture('{0}/{1}_{2}.jpg'.format(self.post_folder,fileName,counter), width=Inches(2.5))
+                while os.path.exists(os.path.join(self.post_folder , "{0}_{1}.jpg".format(fileName,counter))):
+                    document.add_picture(os.path.join(self.post_folder , "{0}_{1}.jpg".format(fileName,counter)), width=Inches(2.5))
                     counter += 1
 
             mediaTypeExcel = post.typename
@@ -289,7 +291,7 @@ class InstaLoaderThread(Thread):
             except:
                 print("Directory data_", username, " already exists.")
 
-            document.save('data_{0}/{1}.docx'.format(username,fileName))
+            document.save(os.path.join("data_{0}".format(username) , "{0}.docx".format(fileName)))
 
             self.printProgress()
             
@@ -310,12 +312,12 @@ class InstaLoaderThread(Thread):
         rows = [2, 2]
         worksheet = None;
 
-        if os.path.exists('data_{0}/{1}.xlsx'.format(username,username)):
-            wbRD = xlrd.open_workbook('data_{0}/{1}.xlsx'.format(username,username))
+        if os.path.exists(os.path.join("data_{0}".format(username) , "{0}.xlsx".format(username))):
+            wbRD = xlrd.open_workbook(os.path.join("data_{0}".format(username) , "{0}.xlsx".format(username)))
             sheets = wbRD.sheets()
         
             
-        workbook = xlsxwriter.Workbook('data_{0}/{1}.xlsx'.format(username,username), {'constant_memory': True})
+        workbook = xlsxwriter.Workbook(os.path.join("data_{0}".format(username) , "{0}.xlsx".format(username)), {'constant_memory': True})
         worksheets.append(workbook.add_worksheet())
 
         bold = workbook.add_format({'bold': 1})
