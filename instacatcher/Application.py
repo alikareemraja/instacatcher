@@ -4,6 +4,7 @@ Hello World, but with more meat.
 """
 
 import wx
+import wx.adv
 import instaloader
 import os
 from datetime import datetime
@@ -16,6 +17,9 @@ import regex
 import emoji
 import instacatcher.DataAccess.InstaLoaderThread as Thread
 import instacatcher.State as State
+from instacatcher.Login import Login
+from instacatcher.Dashboard import Dashboard
+from instacatcher.DataAccess.Download_Progress import Download_Progress
 
 class Application(wx.Frame):
 
@@ -40,56 +44,71 @@ class Application(wx.Frame):
         # box = wx.BoxSizer(wx.VERTICAL)
 
         # and put some text with a larger bold font on it
-        st = wx.StaticText(pnl, label="InstaCatcher 1.0", pos=(25,25))
+        #st = wx.StaticText(pnl, label="InstaCatcher 1.0", pos=(25,25))
         # box.Add(st, 0, wx.EXPAND | wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 20)
-        font = st.GetFont()
-        font.PointSize += 10
-        font = font.Bold()
-        st.SetFont(font)
+        #font = st.GetFont()
+        #font.PointSize += 10
+        #font = font.Bold()
+        #st.SetFont(font)
 
         # INFLUENCER NAME TXT FIELD
-        t2 = wx.StaticText(pnl, -1, pos=(25, 140), size=(150, 30), label="User Name: ")
-        self.usrSelector = wx.TextCtrl(pnl,value=self.state.usrOfPosts, pos=(180, 140), size=(150, 30))
+        t2 = wx.StaticText(pnl, -1, pos=(25, 80), size=(150, 30), label="User Name: ")
+        self.usrSelector = wx.TextCtrl(pnl,value=self.state.usrOfPosts, pos=(180, 80), size=(150, 30))
         self.usrSelector.Bind(wx.EVT_TEXT, self.OnKeyTypedUsr)
-        add = wx.Button(pnl, label="Add", pos=(190,170), size=(60,25))
-        emptybtn = wx.Button(pnl, label="Empty", pos=(250,170), size=(60,25))
+        add = wx.Button(pnl, label="Add", pos=(190,110), size=(60,25))
+        emptybtn = wx.Button(pnl, label="Empty", pos=(250,110), size=(60,25))
         self.Bind(wx.EVT_BUTTON, self.adduser, add)
         self.Bind(wx.EVT_BUTTON, self.empty, emptybtn)
         # box.Add(t2, 0, wx.EXPAND | wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 20)
  
         #self.text = wx.TextCtrl(pnl,style = wx.TE_MULTILINE) 
-        self.listbox = wx.ListBox(pnl, pos =(405, 140),size = (120,-1), choices = self.state.influencer_list, style = wx.LB_SINGLE)
-
-        # NUMBER OF POSTS TXT FIELD
-        t1 = wx.StaticText(pnl, -1,pos=(25,210), size = (150,30), label="Number of Posts: ")
-        self.nbrSelector = wx.TextCtrl(pnl,value= str(self.state.nbrOfPosts), pos=(180,210), size = (150,30))
-        self.nbrSelector.Bind(wx.EVT_TEXT,self.OnKeyTypedNbr)
-        # box.Add(t1, 0, wx.EXPAND | wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 20)
+        self.listbox = wx.ListBox(pnl, pos =(365, 80),size = (160,200), choices = self.state.influencer_list, style = wx.LB_SINGLE)
 
         # GET STORIES
-        t1 = wx.StaticText(pnl, -1,pos=(25,260), size = (150,30), label="Get Stories")
-        self.nbrSelector = wx.CheckBox(pnl, pos=(180,260), size = (150,30))
-        self.nbrSelector.Bind(wx.EVT_TEXT,self.OnClickStories)
+        t1 = wx.StaticText(pnl, -1,pos=(25,150), size = (150,30), label="Get Stories")
+        self.storiesSelector = wx.CheckBox(pnl, pos=(50,165), size = (20,20))
+        self.storiesSelector.Bind(wx.EVT_CHECKBOX,self.OnClickStories)
         if self.state.getStories == True:
-            self.nbrSelector.SetValue(self.getStories)
+            self.storiesSelector.SetValue(self.state.getStories)
+        
+        # SAVE DOCS
+        """ doclabel = wx.StaticText(pnl, -1,pos=(130,150), size = (150,30), label="Create Docs")
+        self.docsSelector = wx.CheckBox(pnl, pos=(160,165), size = (20,20))
+        self.docsSelector.Bind(wx.EVT_CHECKBOX,self.OnClickDocs) """
+        self.state.createDocs = True
+        """ if self.state.createDocs == True:
+            self.docsSelector.SetValue(self.state.createDocs) """
+
+        # GET POSTS
+        t1 = wx.StaticText(pnl, -1,pos=(230,150), size = (150,30), label="Get Posts")
+        self.postsSelector = wx.CheckBox(pnl, pos=(250,165), size = (20,20))
+        self.postsSelector.Bind(wx.EVT_CHECKBOX,self.OnClickPosts)
+        if self.state.savePosts == True:
+            self.postsSelector.SetValue(self.state.savePosts)
 
         # DATE FROM FIELD
-        t3 = wx.StaticText(pnl, -1, pos=(25, 310), size=(150, 30), label="From YYYY-MM-DD:")
-        self.datefromSelector = wx.TextCtrl(pnl, value = self.state.timeFrom.strftime("%Y-%m-%d"),  pos=(180, 310), size=(150, 30))
-        self.datefromSelector.Bind(wx.EVT_TEXT, self.OnKeyTypedDateFrom)
+        t3 = wx.StaticText(pnl, -1, pos=(25, 210), size=(150, 30), label="Start Date:")
+        #self.datefromSelector = wx.TextCtrl(pnl, value = self.state.timeFrom.strftime("%Y-%m-%d"),  pos=(180, 310), size=(150, 30))
+        self.datefromSelector = wx.adv.DatePickerCtrl(pnl, -1, dt=self.state.timeFrom, pos=(180, 210), size=(150, 30), style=wx.adv.DP_DEFAULT|wx.adv.DP_SHOWCENTURY, validator=wx.Validator(), name="start_date")
+        self.datefromSelector.Bind(wx.adv.EVT_DATE_CHANGED, self.OnKeyTypedDateFrom)
 
-        t4 = wx.StaticText(pnl, -1, pos=(25, 360), size=(150, 30), label="To YYYY-MM-DD:")
-        self.datetoSelector = wx.TextCtrl(pnl, value = self.state.timeTo.strftime("%Y-%m-%d") , pos=(180, 360), size=(150, 30))
-        self.datetoSelector.Bind(wx.EVT_TEXT, self.OnKeyTypedDateTo)
+        t4 = wx.StaticText(pnl, -1, pos=(25, 260), size=(150, 30), label="End Date:")
+        #self.datetoSelector = wx.TextCtrl(pnl, value = self.state.timeTo.strftime("%Y-%m-%d") , pos=(180, 360), size=(150, 30))
+        self.datetoSelector = wx.adv.DatePickerCtrl(pnl, -1, dt=self.state.timeTo, pos=(180, 260), size=(150, 30), style=wx.adv.DP_DEFAULT|wx.adv.DP_SHOWCENTURY, validator=wx.Validator(), name="end_date")
+        self.datetoSelector.Bind(wx.adv.EVT_DATE_CHANGED, self.OnKeyTypedDateTo)
 
-        lbl = wx.StaticText(pnl, label="Type in the name of the Influencer and optionally select the number of posts and date restricitons. Read instructions for more details.", pos=(25, 65), size=(350, 100))
+        lbl = wx.StaticText(pnl, label="Type in the name of the Influencer and optionally select the number of posts and date restricitons. Read instructions for more details.", pos=(25, 5), size=(350, 100))
         lbl.Wrap(350)
-        btn = wx.Button(pnl, label="Download", pos=(25,400), size=(150,50))
-        self.Bind(wx.EVT_BUTTON, self.action, btn)
+        
+        self.dbtn = wx.Button(pnl, label="Download", pos=(25,400), size=(120,30))
+        self.Bind(wx.EVT_BUTTON, self.action, self.dbtn)
 
         lbl.Wrap(350)
-        cancel = wx.Button(pnl, label="Cancel", pos=(225,400), size=(150,50))
-        self.Bind(wx.EVT_BUTTON, self.cancel, cancel)
+        
+
+        self.analytics_button = wx.Button(pnl, label="Analytics Dashboard", pos=(330,400), size=(180,30))
+        self.Bind(wx.EVT_BUTTON, self.analytics, self.analytics_button)
+        
         # box.Add(lbl, 0, wx.EXPAND | wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
         # box.Add(btn, 0, wx.EXPAND | wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
 
@@ -103,26 +122,33 @@ class Application(wx.Frame):
         # pnl.SetSizer(box)
         self.Centre()
         self.Show()
+        
+        #loginWindow = Login(self, title="Login", state=state)
+        self.login_button = wx.Button(pnl, label="Login", pos=(450,20), size=(80,30))
+        self.Bind(wx.EVT_BUTTON, self.login, self.login_button)
+        #loginWindow.Show()
 
         # And indicate we don't have a worker thread yet
-        self.worker = None
+        self.worker = []
 
     def action(self,event):
-        """Start Computation."""
-        # Trigger the worker thread unless it's already busy
-        if not self.worker:
-            State.Save(self.state);
-            self.SetStatusText('Downloading Data')
-            self.worker = Thread.InstaLoaderThread(self,self.state, self.state.influencer_list)
-            btn = event.GetEventObject()
-            btn.Disable()
+        
+        State.Save(self.state);
+        downloader = Download_Progress(self, "Download", self.state)
+        downloader.Show()
+        downloader.run();
+        self.SetStatusText('Downloading Data')
+        btn = event.GetEventObject()
+        btn.Disable()
+        
 
-    def cancel(self, event):
-        """Stop Computation."""
-        # Flag the worker thread to stop if running
-        if self.worker:
-            self.worker.abort()
+    def analytics(self,event):
+        dashboardWindow = Dashboard(self, title="Dashboard", state=self.state)
+        dashboardWindow.Show()
 
+    def login(self, event):
+        loginWindow = Login(self, title="Login", state=self.state)
+        loginWindow.Show()
 
     def OnKeyTypedNbr(self, event):
         try:
@@ -132,7 +158,19 @@ class Application(wx.Frame):
             self.state.nbrOfPosts = 1
 
     def OnClickStories(self, event):
-        self.state.getStories = event.IsChecked
+        checkbox = event.GetEventObject()
+        self.state.getStories = checkbox.GetValue()
+
+
+    def OnClickPosts(self, event):
+        
+        checkbox = event.GetEventObject()
+        self.state.savePosts = checkbox.GetValue()
+
+    def OnClickDocs(self, event):
+
+        checkbox = event.GetEventObject()
+        self.state.createDocs = checkbox.GetValue()
 
 
     def OnKeyTypedUsr(self, event):
@@ -152,9 +190,8 @@ class Application(wx.Frame):
 
     def OnKeyTypedDateFrom(self, event):
         try:
-            timeStr = str(event.GetString())
-            self.state.timeFrom = datetime.strptime(timeStr, '%Y-%m-%d').date()
-            print("Time succesfully converted and stored!")
+            datefrom = event.GetEventObject()
+            self.state.timeFrom =  self._wxdate2pydate(datefrom.GetValue()) #datetime.strptime(datefrom.GetValue(), '%m/%d/%Y').date();
             self.state.isDate = True
 
         except ValueError as ve:
@@ -163,55 +200,13 @@ class Application(wx.Frame):
 
     def OnKeyTypedDateTo(self, event):
         try:
-            timeStr = str(event.GetString())
-            self.state.timeTo = datetime.strptime(timeStr, '%Y-%m-%d').date()
-            print("Time succesfully converted and stored!")
+            dateto = event.GetEventObject()
+            self.state.timeTo = self._wxdate2pydate(dateto.GetValue()) #datetime.strptime(dateto.GetValue(), '%m/%d/%Y').date();
             self.state.isDate = True
             
         except ValueError as ve:
             print('ValueError Raised:', ve)
             self.state.isDate = False
-
-
-    def getDate (self, date: datetime):
-
-        Y=""
-        if date.year < 10:
-           Y="0%s" % str(date.year)
-        else:
-            Y=str(date.year)
-
-        M = ""
-        if date.month < 10:
-            M = "0%s" % str(date.month)
-        else:
-            M = str(date.month)
-
-        D = ""
-        if date.day < 10:
-            D = "0%s" % str(date.day)
-        else:
-            D = str(date.day)
-
-        h = ""
-        if date.hour < 10:
-            h = "0%s" % str(date.hour)
-        else:
-            h = str(date.hour)
-
-        m = ""
-        if date.minute < 10:
-            m = "0%s" % str(date.minute)
-        else:
-            m = str(date.minute)
-
-        s = ""
-        if date.second < 10:
-            s = "0%s" % str(date.second)
-        else:
-            s = str(date.second)
-
-        return "%(Y)s-%(M)s-%(D)s_%(h)s-%(m)s-%(s)s_UTC" % {'Y': Y, 'M': M, 'D': D, 'h': h, 'm': m, 's': s}
 
     def makeMenuBar(self):
         
@@ -266,3 +261,12 @@ class Application(wx.Frame):
         wx.MessageBox("This is a wxPython Hello World sample",
                       "About Hello World 2",
                       wx.OK|wx.ICON_INFORMATION)
+
+    def _wxdate2pydate(self, date):
+        import datetime
+        assert isinstance(date, wx.DateTime)
+        if date.IsValid():
+            ymd = map(int, date.FormatISODate().split('-'))
+            return datetime.date(*ymd)
+        else:
+            return None

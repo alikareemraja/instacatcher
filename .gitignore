@@ -106,3 +106,6 @@ data_*/
 *.pkl
 lib/*
 bin/*
+
+dist/*
+build/*

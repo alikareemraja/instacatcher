@@ -8,17 +8,20 @@ import pickle
 class State(object):
     def __init__(self):
         # Set variables
-        self.nbrOfPosts = 1      # how many posts should be downloaded
+        self.login_user = ""
+        self.login_password = ""
         self.usrOfPosts = ""     # instagram user name of influencer
         self.influencer_list = []
         self.getStories = False
-        self.timeFrom = datetime.strptime("1900-01-01", '%Y-%m-%d').date()  # lower bound for time interval downloads
+        self.createDocs = False
+        self.savePosts = False
+        self.timeFrom = datetime.today().date()  # lower bound for time interval downloads
         self.timeTo = datetime.today().date()                               # upper bound for time interval downloads
         self.isDate = True
 
 def Save(object):
-    with open('instacatcher_state.pkl', 'wb') as output:
-        pickle.dump(object, output, pickle.HIGHEST_PROTOCOL)
+        with open('instacatcher_state.pkl', 'wb') as output:
+                pickle.dump(object, output, pickle.DEFAULT_PROTOCOL)
 
 def Load():
         try:

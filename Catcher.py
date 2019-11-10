@@ -24,11 +24,14 @@ if __name__ == '__main__':
     # When this module is run (not imported) then create the app, the
     # frame, show it, and start the event loop.
 
-    state = State.Load();
-    app = wx.App()
-
-    frm = UI.Application(None, title='InstaCatcher', state= state)
-    frm.Show()
-
-
-    app.MainLoop()
+    
+    try:
+        state = State.Load();
+        app = wx.App()
+        frm = UI.Application(None, title='InstaCatcher', state= state)
+        frm.Show()
+        app.MainLoop()
+        
+    except:
+        wx.MessageDialog(None, "Something went wrong!", caption="Oops!",
+              style=wx.OK, pos=wx.DefaultPosition)

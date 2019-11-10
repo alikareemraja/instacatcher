@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "d003928bdf7e5017573e41a67b0b12a45e22d29d26d3a1faef929efef9ae0581"
+            "sha256": "8ee98f0c97c543af42c58a0821dba2bae697464833df3856758a89917e90b60c"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -136,6 +136,14 @@
                 "sha256:9a107b99a5393caf59c7aa3c1249c16e6879447533d0887f4336dde834c7be86"
             ],
             "version": "==1.25.6"
+        },
+        "xlrd": {
+            "hashes": [
+                "sha256:546eb36cee8db40c3eaa46c351e67ffee6eeb5fa2650b71bc4c758a29a1b29b2",
+                "sha256:e551fb498759fa3a5384a94ccd4c3c02eb7c00ea424426e212ac0c57be9dfbde"
+            ],
+            "index": "pypi",
+            "version": "==1.2.0"
         },
         "xlsxwriter": {
             "hashes": [
