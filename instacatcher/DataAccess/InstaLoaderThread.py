@@ -402,15 +402,17 @@ class InstaLoaderThread(Thread):
             rows[1] += 1
 
         index = 0
+        
         # run through the sheets and store sheets in workbook
         # this still doesn't write to the file yet
-        for sheet in sheets: # write data from old file
-            #worksheets.append(workbook.add_worksheet(sheet.name))
-            for row in (range(sheet.nrows - 2)):
-                for col in range(sheet.ncols):
-                    worksheets[index].write(rows[index], col, sheet.cell(row + 2, col).value)
-                rows[index] = rows[index] + 1
-            index = index + 1
+        if len(sheets) > 0:
+            for sheet in sheets: # write data from old file
+                #worksheets.append(workbook.add_worksheet(sheet.name))
+                for row in (range(sheet.nrows - 2)):
+                    for col in range(sheet.ncols):
+                        worksheets[index].write(rows[index], col, sheet.cell(row + 2, col).value)
+                    rows[index] = rows[index] + 1
+                index = index + 1
 
 
         workbook.close()
