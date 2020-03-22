@@ -240,7 +240,8 @@ class InstaLoaderThread(Thread):
             try:
                 for com in comments:
                     q = document.add_paragraph()
-                    q.add_run("%s: " % str(getattr(com, 'created_at_utc'))).bold
+                    q.add_run("%s, " % str(getattr(com, 'created_at_utc'))).bold
+                    q.add_run(" "+getattr(com, 'owner').full_name +": ")
                     q.add_run(com.text)
 
                     # check time difference of each comment to post
